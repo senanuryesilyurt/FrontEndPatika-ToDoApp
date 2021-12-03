@@ -1,50 +1,92 @@
-pageLoad();
+window.addEventListener('load', () => {pageLoad()})
 
-let buttonDOM = document.querySelector("#liveToastBtn");
-buttonDOM.onclick = function addItem(event) {
-    let key,counter = 0;
+const TASK = document.querySelector("#task");
+const toDoList = document.querySelector("#list")
+toDoList.addEventListener('click', function(event) {
+  if (event.target.tagName === 'LI') {
+    event.target.classList.toggle('checked');
+  }
+}, false);
 
-    event.preventDefault();
-    const TASK = document.querySelector("#task");
+const buttonDOM = document.querySelector("#addButton");
+buttonDOM.onclick = function () { validation(TASK.value) }
 
-    counter=localStorage.getItem("counter")
-    counter++;
-    key = "task" + counter;
-    localStorage.setItem(key, TASK.value);
-    localStorage.setItem("counter",counter)
- 
-    if (TASK.value) 
-    {
-        addTask(TASK.value);
-        TASK.value = "";
-        alert("Listeye eklendi.");
-    } 
-    else 
-    {
-        alert("Listeye boş ekleme yapamazsınız!");
-    }
-};
 
-function addTask(task) {
-  
-  let list = document.querySelector("#list");
-  let liDOM = document.createElement("li");
 
-  liDOM.innerHTML = `${task}`;
-  list.append(liDOM);
-}
-// icon ekle ve icona tıklandığında ;
-//local storage ve listeden seçilen elemanı kaldır ve sayacı bir azalt
-function removeTask(task) {}
-//seçilen elemanı işaretle 
-function completedTask() {}
 
 function pageLoad() {
-    let key, counter=0;
-    
-    for (let i=1 ; i < localStorage.length; i++) {
-        counter++
-        key="task" + counter
-        addTask(localStorage.getItem(key));
-    }
+  let counter = 0;
+  let key
+
+  for (let i = 1; i < localStorage.length; i++) {
+    counter++;
+    key = "task" + counter;
+
+    createToDoItem(localStorage.getItem(key));
+  }
 }
+
+function validation(value) {
+  if (value) 
+  {
+    createToDoItem(value);
+    saveTaskInLocalStorage(value)
+    $("#liveToastSuccess").toast("show");
+  } 
+  else {
+    $("#liveToastError").toast("show");
+  }
+  value = "";
+}
+
+function createToDoItem(task) {
+  let item = document.createElement('li')
+  item.innerHTML = `${task}`
+  toDoList.append(item)
+  createCloseButton()
+ // clickCloseButton()
+ 
+}
+
+function saveTaskInLocalStorage(task) {
+  let key,counter = 0;
+
+  counter = localStorage.getItem("counter");
+  counter++;
+  key = "task" + counter;
+  localStorage.setItem(key, task);
+  localStorage.setItem("counter", counter);
+}
+
+function createCloseButton() {
+  let list = document.getElementsByTagName('LI')
+  let span = document.createElement('SPAN');
+  let txt = document.createTextNode("\u00D7");
+
+  for(let i=0; i<list.length; i++){
+    span.id="closeButtonId"
+    span.className = "close"; 
+    span.appendChild(txt);
+    list[i].appendChild(span);
+    span.onclick = function () {list[i].remove()}
+  }
+  
+}
+
+function removeItem() {
+  // let counter = localStorage.getItem("counter");
+  // localStorage.removeItem(key.value);
+  // localStorage.removeItem(key);
+  // counter--;
+  // localStorage.setItem("counter");
+  // pageLoad();
+}
+
+function clickCloseButton(value) {
+  console.log(value)
+  let closeButton = document.querySelector("#closeButtonId");
+  for (let i = 0; i < closeButton.length; i++) {
+    closeButton[i].onclick = function () { removeItem() }
+  }
+}
+
